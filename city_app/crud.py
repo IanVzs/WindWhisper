@@ -1,35 +1,42 @@
+from decimal import Decimal
+from datetime import datetime
 from sqlalchemy.orm import Session
 
 from . import models, schemas
 
 
-def get_user(db: Session, user_id: int):
-    return db.query(models.User).filter(models.User.id == user_id).first()
+def get_city(db: Session, city_id: int):
+    return db.query(models.City).filter(models.City.id == city_id).first()
 
 
-def get_user_by_email(db: Session, email: str):
-    return db.query(models.User).filter(models.User.email == email).first()
+def get_city_by_id(db: Session, id: str):
+    return db.query(models.City).filter(models.City.id == id).first()
 
 
-def get_users(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.User).offset(skip).limit(limit).all()
+def get_citys(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(models.City).offset(skip).limit(limit).all()
 
 
-def create_user(db: Session, user: schemas.UserCreate):
-    fake_hashed_password = user.password + "notreallyhashed"
-    db_user = models.User(email=user.email, hashed_password=fake_hashed_password)
-    db.add(db_user)
+def create_city(db: Session, city: schemas.CityCreate):
+    # fake_hashed_password = city.password + "notreallyhashed"
+    city.lon = Decimal(city.lon)
+    city.lat = Decimal(city.lat)
+    # db_city = models.City(id=city.id, hashed_password=fake_hashed_password)
+    db_city = models.City(**city.dict())
+    db.add(db_city)
     db.commit()
-    db.refresh(db_user)
-    return db_user
+    db.refresh(db_city)
+    return db_city
 
 
-def get_wx_infos(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.WXInfo).offset(skip).limit(limit).all()
+def get_alarm_infos(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(models.AlarmInfo).offset(skip).limit(limit).all()
 
 
-def create_user_item(db: Session, wx_info: schemas.WXInfoCreate, user_id: int):
-    db_wx_info = models.WXInfo(**wx_info.dict(), id=user_id)
+def create_city_item(db: Session, wx_info: schemas.AlarmInfoCreate, city_id: int):
+    wx_info.lon = Decimal(wx_info.lon)
+    wx_info.lat = Decimal(wx_info.lat)
+    db_wx_info = models.AlarmInfo(**wx_info.dict(), id=city_id)
     db.add(db_wx_info)
     db.commit()
     db.refresh(db_wx_info)

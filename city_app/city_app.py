@@ -23,9 +23,9 @@ def get_db():
 
 @router.post("/citys/", response_model=schemas.City)
 def create_city(city: schemas.CityCreate, db: Session = Depends(get_db)):
-    db_city = crud.get_city_by_email(db, email=city.email)
+    db_city = crud.get_city_by_id(db, id=city.id)
     if db_city:
-        raise HTTPException(status_code=400, detail="Email already registered")
+        raise HTTPException(status_code=400, detail="This city already registered")
     return crud.create_city(db=db, city=city)
 
 

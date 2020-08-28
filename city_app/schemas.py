@@ -1,36 +1,50 @@
+"""
+Base: 读写可见
+Create: 仅写时可见
+[本体] : 仅读时可见
+"""
 from typing import List
-
+from decimal import Decimal
+from datetime import datetime
 from pydantic import BaseModel
 
 
-class WXInfoBase(BaseModel):
-    openid: str
-    city: str = None
+class AlarmInfoBase(BaseModel):
+    lon: Decimal = Decimal(0)
+    lat: Decimal = Decimal(0)
+    signalType: str
+    signalLevel: str
+    issueTime: datetime
+    relieveTime: datetime
+    issueContent: str = ''
 
-
-class WXInfoCreate(WXInfoBase):
+class AlarmInfoCreate(AlarmInfoBase):
     pass
 
 
-class WXInfo(WXInfoBase):
+class AlarmInfo(AlarmInfoBase):
     id: int
 
     class Config:
         orm_mode = True
 
 
-class UserBase(BaseModel):
-    email: str
-
-
-class UserCreate(UserBase):
-    password: str
-
-
-class User(UserBase):
+class CityBase(BaseModel):
     id: int
-    is_active: bool
-    wx_infos: List[WXInfo] = []
+    lon: Decimal = Decimal(0)
+    lat: Decimal = Decimal(0)
+    cityZh: str
+    provinceZh: str = ''
+    leaderZh: str = ''
+
+
+class CityCreate(CityBase):
+    pass
+
+
+class City(CityBase):
+    is_active: bool = 1
+    alarm_infos: List[AlarmInfo] = []
 
     class Config:
         orm_mode = True
