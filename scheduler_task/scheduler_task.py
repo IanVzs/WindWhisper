@@ -53,7 +53,7 @@ class A():
             jobstores=jobstores, executors=executors, job_defaults=job_defaults, timezone=china_tz)
         scheduler.add_listener(self.listener, EVENT_JOB_EXECUTED | EVENT_JOB_ERROR)
 
-        scheduler.add_job(self.push_report, 'interval', seconds=10*60, id='sign_push_report')
+        scheduler.add_job(weather.save_alarms, 'interval', seconds=10*60, id='sign_push_report')
         scheduler.start()
         return 1
         # log_info(f"scheduler.get_jobs: {scheduler.get_jobs()}")
