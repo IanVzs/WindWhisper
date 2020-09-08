@@ -1,5 +1,5 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DECIMAL, Unicode, DateTime, UnicodeText
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Session
 
 from .database import Base
 
@@ -20,7 +20,7 @@ class City(Base):
 class AlarmInfo(Base):
     __tablename__ = "alarm_infos"
 
-    id = Column(Integer, ForeignKey("citys.id"), primary_key=True, index=True)
+    id = Column(Integer, ForeignKey("citys.id"), primary_key=True, index=True, unique=False)
     lon = Column(DECIMAL(10, 7))
     lat = Column(DECIMAL(10, 7))
     signalType = Column(Unicode(7))
@@ -31,3 +31,8 @@ class AlarmInfo(Base):
     issueContent = Column(UnicodeText)
 
     owner = relationship("City", back_populates="alarm_infos")
+
+    @classmethod
+    def update(cls, db: Session, city_id: int, new_data: dict):
+        db.query(cls).filter_by(id=city_id).update(new_data)
+        db.commit()
