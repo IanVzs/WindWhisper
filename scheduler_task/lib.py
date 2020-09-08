@@ -35,8 +35,22 @@ class API:
     def __init__(self):
         pass
 
-    async def fetch(self, session, url, rlt_type="read"):
-        async with session.get(url) as response:
+    async def fetch(self, session, url, method="GET", data='', json:dict={}, rlt_type="read"):
+        """
+        data: byte or str
+        """
+        def req(session, url, method="GET", data='', json:dict={}):
+            hi = ''
+            if "GET" == method:
+                hi = session.get(url)
+            elif "POST" == method:
+                if data:
+                    hi = session.post(url, data=data)
+                elif json:
+                    hi = session.post(url, json=json)
+            return hi
+
+        async with req(session, url, method, data, json) as response:
             if rlt_type in ("read", "xml2dict"):
                 rlt = await response.read()
                 if rlt_type == "xml2dict":
@@ -51,18 +65,18 @@ class API:
     def get(self, url, rlt_type="read"):
         async def _get(url, rlt_type):
             async with aiohttp.ClientSession() as session:
-                a = await self.fetch(session, url, rlt_type)
+                a = await self.fetch(session, url, rlt_type=rlt_type)
             return a
         
-        rlt = asyncio.run(_get(url, rlt_type))
+        rlt = asyncio.run(_get(url, rlt_type=rlt_type))
         return rlt
 
-    def post(self, url, data={}, json={}):
+    def post(self, url, data={}, json={}, rlt_type=''):
         async def _post(url, data={}, json={}):
             async with aiohttp.ClientSession() as session:
-                a = await self.fetch(session, 'https://www.baidu.com')
+                a = await self.fetch(session, url, method="POST", data=data, json=json)
             return a
-        rlt = asyncio.run(_post(url, data={}, json={}))
+        rlt = asyncio.run(_post(url, data=data, json=json))
         return rlt
 
 api = API()

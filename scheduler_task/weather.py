@@ -1,16 +1,9 @@
-from . import lib
-
-
 """
-'dt', 'hourType', 'RoadIcing', 'SnowStorm', 'RainStorm', 'Hail', 'Gale', 'HeavyFog', 'HeatWave', 'Drought', 'ColdWave', 'SW_Hazards', 'Lightning', 'Haze', 'SandStorm', 'Frost', 'Typhoon', 'other'
-
-city1: 
-city2:
-.
-.
-.
-cityn:
+存储城市天气报警信息
 """
+import lib
+# from . import lib
+
 
 def get_alarms():
     rlt = []
@@ -34,7 +27,7 @@ def get_alarms():
                     k = k.replace('@', '')
                     if k in ("stationId", "hourType"):
                         continue
-                    if k in ("lon", "lat"):
+                    if 0 and k in ("lon", "lat"):
                         from decimal import Decimal
                         if v:
                             v = Decimal(v)
@@ -63,16 +56,19 @@ def get_alarms():
                     city_id += "0000"
                 stationName = dict_alarm_info["stationName"]
                 # TODO 如果`city`中无, 则新增该地点
-                url = "http://127.0.0.1:4545/citys/{city_id}/alarm_infos/"
+                url = f"http://127.0.0.1:8000/citys/{city_id}/alarm_infos/"
                 data = {k:v for k, v in dict_alarm_info.items() if k in ('id', 'lon', 'lat', 'signalType', 'signalLevel', 'issueTime', 'relieveTime', 'issueContent', 'dt')}
                 yield (url, data)
 
 def save_alarms() -> (int, int):
     num_save, num_wrong = 0, 0
     for url, data in get_alarms():
-        lib.api.post()
+        sign = lib.api.post(url, json=data, rlt_type="json")
         if not sign:
             num_wrong += 1
         else:
             num_save += 1
     return num_save, num_wrong    
+
+if "__main__" == __name__:
+    print(save_alarms())
