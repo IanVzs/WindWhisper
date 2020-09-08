@@ -14,6 +14,7 @@ class AlarmInfoBase(BaseModel):
     lat: Decimal = Decimal(0)
     signalType: str
     signalLevel: str
+    dt: datetime
     issueTime: datetime
     relieveTime: datetime
     issueContent: str = ''

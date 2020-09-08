@@ -1,3 +1,5 @@
+import asyncio
+import aiohttp
 import sqlite3
 
 class Data:
@@ -19,7 +21,7 @@ class Data:
                 value  = f"'{value}'"
             list_values.append(str(value))
         str_keys = ','.join(list_keys)
-        str_values ','.join(list_values)
+        str_values = ','.join(list_values)
         self.sqlite3_cursor.execute(f"INSERT INTO {table_name} ({str_keys}) \
       VALUES ({str_values})")
     def save_done(self):
@@ -28,26 +30,42 @@ class Data:
 
     def get_data(self):
         pass
-    
-def init_city_info():
-    """先存好城市信息"""
-    engi_data = Data()
-    for line in lines:
+
+class API:
+    def __init__(self):
         pass
-        item_data = {
-            "db_name": "",
-            "table_name": "",
-            "data": {
-                "id": ''
-                "lon": ''
-                "lat": ''
-                "cityZh": ''
-                "provinceZh": ''
-                "leaderZh": ''
-            }
-        }
-        engi_data.save_data(**item_data)
-    engi_data.save_done()
+
+    async def fetch(self, session, url, rlt_type="read"):
+        async with session.get(url) as response:
+            if rlt_type in ("read", "xml2dict"):
+                rlt = await response.read()
+                if rlt_type == "xml2dict":
+                    import xmltodict
+                    rlt = xmltodict.parse(rlt)
+                return rlt
+            elif rlt_type == "text":
+                return await response.text()
+            elif rlt_type == "json":
+                return await response.json()
+
+    def get(self, url, rlt_type="read"):
+        async def _get(url, rlt_type):
+            async with aiohttp.ClientSession() as session:
+                a = await self.fetch(session, url, rlt_type)
+            return a
+        
+        rlt = asyncio.run(_get(url, rlt_type))
+        return rlt
+
+    def post(self, url, data={}, json={}):
+        async def _post(url, data={}, json={}):
+            async with aiohttp.ClientSession() as session:
+                a = await self.fetch(session, 'https://www.baidu.com')
+            return a
+        rlt = asyncio.run(_post(url, data={}, json={}))
+        return rlt
+
+api = API()
 
 if "__main__" == __name__:
     init_city_info()

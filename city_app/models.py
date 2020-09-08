@@ -25,6 +25,7 @@ class AlarmInfo(Base):
     lat = Column(DECIMAL(10, 7))
     signalType = Column(Unicode(7))
     signalLevel = Column(Unicode(7))
+    dt = Column(DateTime)
     issueTime = Column(DateTime)
     relieveTime = Column(DateTime)
     issueContent = Column(UnicodeText)
