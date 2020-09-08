@@ -1,8 +1,12 @@
 """
 存储城市天气报警信息
 """
+import json
+
 import lib
+import loggers
 # from . import lib
+# from . import loggers
 
 
 def get_alarms():
@@ -63,6 +67,7 @@ def get_alarms():
 def save_alarms() -> (int, int):
     num_save, num_wrong = 0, 0
     for url, data in get_alarms():
+        loggers.weatherLog.info(json.dumps(data, ensure_ascii=False))
         sign = lib.api.post(url, json=data, rlt_type="json")
         if not sign:
             num_wrong += 1

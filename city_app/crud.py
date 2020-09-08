@@ -32,13 +32,13 @@ def create_city(db: Session, city: schemas.CityCreate):
 def get_alarm_infos(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.AlarmInfo).offset(skip).limit(limit).all()
 
-def format_lonAlat(data):
+def format_lon_lat(data):
     data.lon = Decimal(data.lon)
     data.lat = Decimal(data.lat)
     return data
 
 def create_city_item(db: Session, city_alarm: schemas.AlarmInfoCreate, city_id: int):
-    city_alarm = format_lonAlat(city_alarm)
+    city_alarm = format_lon_lat(city_alarm)
     db_city_alarm = models.AlarmInfo(**city_alarm.dict(), id=city_id)
     db.add(db_city_alarm)
     db.commit()
@@ -46,9 +46,9 @@ def create_city_item(db: Session, city_alarm: schemas.AlarmInfoCreate, city_id: 
     return db_city_alarm
 
 def update_city_item(db: Session, city_alarm: schemas.AlarmInfoCreate, city_id: int):
-    city_alarm = format_lonAlat(city_alarm)
-    db_city_alarm = models.AlarmInfo.update(db, city_id, city_alarm)
-    return db_city_alarm
+    city_alarm = format_lon_lat(city_alarm)
+    new_alarm = models.AlarmInfo.update(db, city_id, city_alarm)
+    return new_alarm
 
-def get_alarm_info_id(db: Session, id: str):
+def get_alarm_info_id(db: Session, id: int):
     return db.query(models.AlarmInfo).filter(models.AlarmInfo.id == id).first()

@@ -36,3 +36,4 @@ class AlarmInfo(Base):
     def update(cls, db: Session, city_id: int, new_data: dict):
         db.query(cls).filter_by(id=city_id).update(new_data)
         db.commit()
+        return db.query(cls).filter_by(id=city_id).first()
