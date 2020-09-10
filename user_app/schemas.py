@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 class WXInfoBase(BaseModel):
     openid: str
-    city: str = None
+    city_id: int = 0
 
 
 class WXInfoCreate(WXInfoBase):

@@ -44,9 +44,12 @@ def read_city(city_id: int, db: Session = Depends(get_db)):
 
 @router.post("/citys/{city_id}/alarm_infos/", response_model=schemas.AlarmInfo)
 def create_item_for_city(
-    city_id: int, wx_info: schemas.AlarmInfoCreate, db: Session = Depends(get_db)
+    city_id: int, city_alarm: schemas.AlarmInfoCreate, db: Session = Depends(get_db)
 ):
-    return crud.create_city_item(db=db, wx_info=wx_info, city_id=city_id)
+    if not crud.get_alarm_info_id(db=db, id=city_id):
+        return crud.create_city_item(db=db, city_alarm=city_alarm, city_id=city_id)
+    else:
+        return crud.update_city_item(db=db, city_alarm=city_alarm, city_id=city_id)
 
 
 @router.get("/alarm_infos/", response_model=List[schemas.AlarmInfo])

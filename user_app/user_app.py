@@ -46,7 +46,11 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
 def create_item_for_user(
     user_id: int, wx_info: schemas.WXInfoCreate, db: Session = Depends(get_db)
 ):
-    return crud.create_user_item(db=db, wx_info=wx_info, user_id=user_id)
+    user_info = crud.get_user(db, user_id=user_id)
+    if not user_info or not user_info.wx_infos:
+        return crud.create_user_item(db=db, wx_info=wx_info, user_id=user_id)
+    else:
+        return crud.update_user_item(db=db, wx_info=wx_info, user_id=user_id)
 
 
 @router.get("/wx_infos/", response_model=List[schemas.WXInfo])

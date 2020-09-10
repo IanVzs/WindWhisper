@@ -34,3 +34,10 @@ def create_user_item(db: Session, wx_info: schemas.WXInfoCreate, user_id: int):
     db.commit()
     db.refresh(db_wx_info)
     return db_wx_info
+
+def get_wxinfo_by_openid(db: Session, openid: str):
+    return db.query(models.WXInfo).filter(models.WXInfo.openid == openid).first()
+
+def update_user_item(db: Session, wx_info: schemas.WXInfoCreate, user_id: int):
+    new_info = models.WXInfo.update(db, user_id, wx_info)
+    return new_info
