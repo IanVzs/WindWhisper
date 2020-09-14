@@ -6,7 +6,7 @@ import json
 import lib
 import loggers
 # from . import lib
-# from . import loggers
+from . import config
 
 
 def get_alarms():
@@ -60,20 +60,37 @@ def get_alarms():
                     city_id += "0000"
                 stationName = dict_alarm_info["stationName"]
                 # TODO 如果`city`中无, 则新增该地点
-                url = f"http://127.0.0.1:8000/citys/{city_id}/alarm_infos/"
+                url = f"{config.API_DB_SERVER_HOST}/citys/{city_id}/alarm_infos/"
                 data = {k:v for k, v in dict_alarm_info.items() if k in ('id', 'lon', 'lat', 'signalType', 'signalLevel', 'issueTime', 'relieveTime', 'issueContent', 'dt')}
                 yield (url, data)
 
-def save_alarms() -> (int, int):
+def save_alarms() -> (bool, dict):
     num_save, num_wrong = 0, 0
     for url, data in get_alarms():
         loggers.weatherLog.info(json.dumps(data, ensure_ascii=False))
-        sign = lib.api.post(url, json=data, rlt_type="json")
-        if not sign:
-            num_wrong += 1
+        rlt = lib.api.post(url, json=data, rlt_type="json")
+        if rlt:
+            sign = True
         else:
-            num_save += 1
-    return num_save, num_wrong    
+            sign = False
+        yield sign, data
+
+def is_alarm_new(data: dict):
+    # TODO
+    return True
+
+def weather_alarm():
+    for sign, data in save_alarms():
+        # TODO 
+        city_id = data["id"]
+        city_weather_alarm = lib.api.get(f"{config.API_DB_SERVER_HOST}/get_city_alarm/{city_id}", rlt_type="json")
+        if not is_alarm_new(city_weather_alarm):
+            continue
+        list_user_info = lib.api.get(f"{config.API_DB_SERVER_HOST}/get_who_city/{city_id}", rlt_type="json")
+        issueContent = data["issueContent"]
+        for user_info in list_user_info:
+            user_id = user_info["id"]
+            lib.user_interface.send_text(user_id, txt=issueContent)
 
 if "__main__" == __name__:
     print(save_alarms())

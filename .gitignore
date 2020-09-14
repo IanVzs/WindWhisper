@@ -130,3 +130,6 @@ dmypy.json
 
 # sqllite3
 *.db
+
+# configs
+config.py
