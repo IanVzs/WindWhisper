@@ -64,9 +64,27 @@ def get_alarms():
                 data = {k:v for k, v in dict_alarm_info.items() if k in ('id', 'lon', 'lat', 'signalType', 'signalLevel', 'issueTime', 'relieveTime', 'issueContent', 'dt')}
                 yield (url, data)
 
+def is_alarm_new(data: dict, new_data: dict):
+    o_alarm_data = data.get("alarm_infos") and data["alarm_infos"]["issueContent"]
+    n_alarm_data = new_data.get("issueContent")
+    if not n_alarm_data:
+        # TODO 没内容有些奇怪
+        loggers.weatherLog.error("(❤ ω ❤)")
+        return False
+    elif o_alarm_data = n_alarm_data:
+        return False
+    return True
+
 def save_alarms() -> (bool, dict):
+    """
+    调用获取警报, 存入警报信息
+    """
     num_save, num_wrong = 0, 0
     for url, data in get_alarms():
+        city_weather_alarm = lib.api.get(f"{config.API_DB_SERVER_HOST}/citys/{city_id}", rlt_type="json")
+        if not is_alarm_new(city_weather_alarm, data):
+            # 除重
+            continue
         loggers.weatherLog.info(json.dumps(data, ensure_ascii=False))
         rlt = lib.api.post(url, json=data, rlt_type="json")
         if rlt:
@@ -75,17 +93,12 @@ def save_alarms() -> (bool, dict):
             sign = False
         yield sign, data
 
-def is_alarm_new(data: dict):
-    # TODO
-    return True
-
 def weather_alarm():
+    """
+    获取新警报信息, 查询覆盖范围内的用户, 推送之
+    """
     for sign, data in save_alarms():
-        # TODO 
         city_id = data["id"]
-        city_weather_alarm = lib.api.get(f"{config.API_DB_SERVER_HOST}/get_city_alarm/{city_id}", rlt_type="json")
-        if not is_alarm_new(city_weather_alarm):
-            continue
         list_user_info = lib.api.get(f"{config.API_DB_SERVER_HOST}/get_who_city/{city_id}", rlt_type="json")
         issueContent = data["issueContent"]
         for user_info in list_user_info:

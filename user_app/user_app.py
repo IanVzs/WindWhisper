@@ -41,6 +41,12 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
 
+@router.get("/users/bycity/{cityid}", response_model=List[schemas.WXInfo])
+def read_user_by_cityid(cityid: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    db_user_info = crud.get_user_by_cityid(db, cityid=cityid)
+    if db_user_info is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return db_user_info
 
 @router.post("/users/{user_id}/wx_infos/", response_model=schemas.WXInfo)
 def create_item_for_user(
