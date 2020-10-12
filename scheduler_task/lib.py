@@ -2,7 +2,7 @@ import asyncio
 import aiohttp
 import sqlite3
 
-from . import config
+from scheduler_task import config
 
 class User_Interface:
     def __init__(self):
@@ -18,6 +18,7 @@ class User_Interface:
         way, _id = switch_way(user_info)
         if "wx" == way:
             data = {"txt": txt, "openid": _id}
+            print("已经发生...")
             user_info = lib.api.post("{config.API_DB_SERVER_HOST}/wx_api/send_txt", json=data, rlt_type="json")
         else:
             pass

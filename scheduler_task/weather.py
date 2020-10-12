@@ -3,10 +3,9 @@
 """
 import json
 
-import lib
 import loggers
-# from . import lib
-from . import config
+from scheduler_task import lib
+from scheduler_task import config
 
 
 def get_alarms():
@@ -71,7 +70,7 @@ def is_alarm_new(data: dict, new_data: dict):
         # TODO 没内容有些奇怪
         loggers.weatherLog.error("(❤ ω ❤)")
         return False
-    elif o_alarm_data = n_alarm_data:
+    elif o_alarm_data == n_alarm_data:
         return False
     return True
 
@@ -99,11 +98,16 @@ def weather_alarm():
     """
     for sign, data in save_alarms():
         city_id = data["id"]
-        list_user_info = lib.api.get(f"{config.API_DB_SERVER_HOST}/get_who_city/{city_id}", rlt_type="json")
-        issueContent = data["issueContent"]
-        for user_info in list_user_info:
-            user_id = user_info["id"]
-            lib.user_interface.send_text(user_id, txt=issueContent)
+        list_user_info = []
+        skip = 0
+        while len(list_user_info) == 100:
+            url = f"{config.API_DB_SERVER_HOST}/users/bycity/{city_id}?skip={skip}&limit=100"
+            skip = 100
+            list_user_info = lib.api.get(url, rlt_type="json")
+            issueContent = data["issueContent"]
+            for user_info in list_user_info:
+                user_id = user_info["id"]
+                lib.user_interface.send_text(user_id, txt=issueContent)
 
 if "__main__" == __name__:
     print(save_alarms())

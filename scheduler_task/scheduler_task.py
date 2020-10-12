@@ -22,10 +22,10 @@ except:
     print("pip3 install sqlalchemy", "pip3 install apscheduler")
     raise "Stop!"
 
-from . import weather
+from scheduler_task import weather
 
 
-class A():
+class AllScheduler():
     def __init__(self):
         pass
 
@@ -53,7 +53,8 @@ class A():
             jobstores=jobstores, executors=executors, job_defaults=job_defaults, timezone=china_tz)
         scheduler.add_listener(self.listener, EVENT_JOB_EXECUTED | EVENT_JOB_ERROR)
 
-        scheduler.add_job(weather.weather_alarm, 'interval', seconds=10*60, id='sign_push_report')
+        #scheduler.add_job(weather.weather_alarm, 'interval', seconds=10*60, id='sign_push_report')
+        scheduler.add_job(weather.weather_alarm, 'interval', seconds=1, id='sign_push_report')
         scheduler.start()
         return 1
         # log_info(f"scheduler.get_jobs: {scheduler.get_jobs()}")
