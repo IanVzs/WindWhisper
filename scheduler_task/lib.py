@@ -13,15 +13,9 @@ class User_Interface:
         openid = user_info.get("wx_infos") and user_info["wx_infos"]["openid"]
         return "wx", openid
 
-    def send_text(self, user_id: int, txt: str):
-        user_info = lib.api.get("{config.API_DB_SERVER_HOST}/users/{user_id}", rlt_type="json")
-        way, _id = switch_way(user_info)
-        if "wx" == way:
-            data = {"txt": txt, "openid": _id}
-            print("已经发生...")
-            user_info = lib.api.post("{config.API_DB_SERVER_HOST}/wx_api/send_txt", json=data, rlt_type="json")
-        else:
-            pass
+    def send_wx_text(self, openid: str, txt: str):
+        if openid:
+            rsp = lib.api.post("{config.API_DB_SERVER_HOST}/wx_api/send_txt", json=data, rlt_type="json")
         return 1
 
 

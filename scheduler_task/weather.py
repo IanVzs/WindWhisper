@@ -121,9 +121,9 @@ def weather_alarm():
                 list_user_info = lib.api.get(url, rlt_type="json")
                 issueContent = data["issueContent"]
                 for user_info in list_user_info:
-                    user_id = user_info["openid"]
+                    openid = user_info["openid"]
                     scheLog.debug(f"weather_alarm will send: {user_id}, {issueContent}")
-                    lib.user_interface.send_text(user_id, txt=issueContent)
+                    lib.user_interface.send_wx_text(openid, txt=issueContent)
         except:
             scheLog.error(json.dumps(data, ensure_ascii=False))
 
