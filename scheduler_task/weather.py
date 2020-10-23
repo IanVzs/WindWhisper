@@ -67,7 +67,11 @@ def get_alarms():
 def is_alarm_new(data: dict, new_data: dict):
     if data["status"] == 404:
         return True
-    o_alarm_data = data.get("alarm_infos") and data["alarm_infos"]["issueContent"]
+    o_alarm_data = data.get("alarm_infos")
+    if o_alarm_data and isinstance(o_alarm_data, list):
+        o_alarm_data = ';'.join([ i["issueContent"] for i in o_alarm_data ])
+    else:
+        o_alarm_data = str(o_alarm_data)
     n_alarm_data = new_data.get("issueContent")
     if not n_alarm_data:
         # TODO 没内容有些奇怪
@@ -95,6 +99,7 @@ def save_alarms() -> (bool, dict):
             sign = True
         else:
             sign = False
+        data["id"] = city_id
         yield sign, data
 
 def weather_alarm():
@@ -108,7 +113,7 @@ def weather_alarm():
             continue
         try:
             city_id = data["id"]
-            list_user_info = []
+            list_user_info = [''] * 100
             skip = 0
             while len(list_user_info) == 100:
                 url = f"{config.API_DB_SERVER_HOST}/users/bycity/{city_id}?skip={skip}&limit=100"
@@ -116,7 +121,7 @@ def weather_alarm():
                 list_user_info = lib.api.get(url, rlt_type="json")
                 issueContent = data["issueContent"]
                 for user_info in list_user_info:
-                    user_id = user_info["id"]
+                    user_id = user_info["openid"]
                     scheLog.debug(f"weather_alarm will send: {user_id}, {issueContent}")
                     lib.user_interface.send_text(user_id, txt=issueContent)
         except:
