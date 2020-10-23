@@ -4,8 +4,9 @@
 import json
 
 import loggers
-from scheduler_task import lib
-from scheduler_task import config
+import lib
+import config
+from loggers import scheLog
 
 
 def get_alarms():
@@ -15,6 +16,7 @@ def get_alarms():
     alarm_info = alarm_data.get("AlermInfo")
     
     for key, value in alarm_info.items():
+        scheLog.debug(json.dumps({"key": key, "value": value}, ensure_ascii=False))
         if isinstance(value, str) and (key.replace('@', '') not in public_info or value != public_info[key]):
             public_info[key.replace('@', '')] = value
         elif value == None:
@@ -59,16 +61,17 @@ def get_alarms():
                     city_id += "0000"
                 stationName = dict_alarm_info["stationName"]
                 # TODO 如果`city`中无, 则新增该地点
-                url = f"{config.API_DB_SERVER_HOST}/citys/{city_id}/alarm_infos/"
                 data = {k:v for k, v in dict_alarm_info.items() if k in ('id', 'lon', 'lat', 'signalType', 'signalLevel', 'issueTime', 'relieveTime', 'issueContent', 'dt')}
-                yield (url, data)
+                yield (city_id, data)
 
 def is_alarm_new(data: dict, new_data: dict):
+    if data["status"] == 404:
+        return True
     o_alarm_data = data.get("alarm_infos") and data["alarm_infos"]["issueContent"]
     n_alarm_data = new_data.get("issueContent")
     if not n_alarm_data:
         # TODO 没内容有些奇怪
-        loggers.weatherLog.error("(❤ ω ❤)")
+        scheLog.error(f'is_alarm_new: "(❤ ω ❤)"')
         return False
     elif o_alarm_data == n_alarm_data:
         return False
@@ -79,8 +82,10 @@ def save_alarms() -> (bool, dict):
     调用获取警报, 存入警报信息
     """
     num_save, num_wrong = 0, 0
-    for url, data in get_alarms():
+    for city_id, data in get_alarms():
+        url = f"{config.API_DB_SERVER_HOST}/citys/{city_id}/alarm_infos/"
         city_weather_alarm = lib.api.get(f"{config.API_DB_SERVER_HOST}/citys/{city_id}", rlt_type="json")
+        
         if not is_alarm_new(city_weather_alarm, data):
             # 除重
             continue
@@ -97,17 +102,24 @@ def weather_alarm():
     获取新警报信息, 查询覆盖范围内的用户, 推送之
     """
     for sign, data in save_alarms():
-        city_id = data["id"]
-        list_user_info = []
-        skip = 0
-        while len(list_user_info) == 100:
-            url = f"{config.API_DB_SERVER_HOST}/users/bycity/{city_id}?skip={skip}&limit=100"
-            skip = 100
-            list_user_info = lib.api.get(url, rlt_type="json")
-            issueContent = data["issueContent"]
-            for user_info in list_user_info:
-                user_id = user_info["id"]
-                lib.user_interface.send_text(user_id, txt=issueContent)
+        if not data.get("id"):
+            # TODO 非城市通告信息, 也可能为城市补充信息
+            scheLog.debug(json.dumps(data, ensure_ascii=False))
+            continue
+        try:
+            city_id = data["id"]
+            list_user_info = []
+            skip = 0
+            while len(list_user_info) == 100:
+                url = f"{config.API_DB_SERVER_HOST}/users/bycity/{city_id}?skip={skip}&limit=100"
+                skip = 100
+                list_user_info = lib.api.get(url, rlt_type="json")
+                issueContent = data["issueContent"]
+                for user_info in list_user_info:
+                    user_id = user_info["id"]
+                    lib.user_interface.send_text(user_id, txt=issueContent)
+        except:
+            scheLog.error(json.dumps(data, ensure_ascii=False))
 
 if "__main__" == __name__:
     print(save_alarms())

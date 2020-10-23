@@ -22,8 +22,14 @@ except:
     print("pip3 install sqlalchemy", "pip3 install apscheduler")
     raise "Stop!"
 
-from scheduler_task import weather
-
+import os
+import sys
+upath = os.path.dirname(os.path.abspath(__file__))
+path = upath.split("/")[:-1]
+path = '/'.join(path)
+sys.path.append(path)
+from loggers import scheLog
+import weather
 
 class AllScheduler():
     def __init__(self):
@@ -37,9 +43,9 @@ class AllScheduler():
                 "jobid": event.job_id,
                 "jobstore": event.jobstore,
             }
-            log_error(f'The job {event.job_id} crashed :( | {log_job}', sendmail=True)
+            scheLog.error(f'The job {event.job_id} crashed :( | {log_job}')
         else:
-            log_info(f'The job {event.job_id} worked :)')
+            scheLog.info(f'The job {event.job_id} worked :)')
 
     def run(self):
         jobstores = {
@@ -54,16 +60,23 @@ class AllScheduler():
         scheduler.add_listener(self.listener, EVENT_JOB_EXECUTED | EVENT_JOB_ERROR)
 
         #scheduler.add_job(weather.weather_alarm, 'interval', seconds=10*60, id='sign_push_report')
-        scheduler.add_job(weather.weather_alarm, 'interval', seconds=1, id='sign_push_report')
+        scheduler.add_job(weather.weather_alarm, 'interval', seconds=2, id='sign_weather_alarm')
         scheduler.start()
-        return 1
-        # log_info(f"scheduler.get_jobs: {scheduler.get_jobs()}")
+        return scheduler
+        # scheLog.info(f"scheduler.get_jobs: {scheduler.get_jobs()}")
         # scheduler.remove_job('sign_push_report')
         # scheduler.shutdown(wait=True)
 
 
 if __name__ == "__main__":
-    jobs = A().run()
+    jobs = AllScheduler().run()
+    time.sleep(3)
+    jobs.remove_job('sign_weather_alarm')
+    jobs.shutdown(wait=True)
     while jobs:
-        time.sleep(3)
-    # A().push_report()
+        try:
+            time.sleep(3)
+        except:
+            jobs.remove_job('sign_weather_alarm')
+            jobs.shutdown(wait=True)
+            print("Stop.")

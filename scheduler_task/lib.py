@@ -2,7 +2,7 @@ import asyncio
 import aiohttp
 import sqlite3
 
-from scheduler_task import config
+import config
 
 class User_Interface:
     def __init__(self):
@@ -45,16 +45,20 @@ class API:
             return hi
 
         async with req(session, url, method, data, json) as response:
+            status = response.status
+            rlt = None
             if rlt_type in ("read", "xml2dict"):
                 rlt = await response.read()
                 if rlt_type == "xml2dict":
                     import xmltodict
                     rlt = xmltodict.parse(rlt)
-                return rlt
             elif rlt_type == "text":
-                return await response.text()
+                rlt = await response.text()
             elif rlt_type == "json":
-                return await response.json()
+                rlt = await response.json()
+            if isinstance(rlt, dict):
+                rlt["status"] = status
+            return rlt
 
     def get(self, url, rlt_type="read"):
         async def _get(url, rlt_type):
