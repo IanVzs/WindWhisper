@@ -117,6 +117,7 @@ def weather_alarm():
                 issueContent = data["issueContent"]
                 for user_info in list_user_info:
                     user_id = user_info["id"]
+                    scheLog.debug(f"weather_alarm will send: {user_id}, {issueContent}")
                     lib.user_interface.send_text(user_id, txt=issueContent)
         except:
             scheLog.error(json.dumps(data, ensure_ascii=False))
