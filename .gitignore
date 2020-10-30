@@ -133,3 +133,6 @@ dmypy.json
 
 # configs
 config.py
+
+# vscode editor
+.vscode
