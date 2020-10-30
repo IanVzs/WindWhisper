@@ -15,7 +15,7 @@ class User_Interface:
 
     def send_wx_text(self, openid: str, txt: str):
         if openid:
-            rsp = lib.api.post("{config.API_DB_SERVER_HOST}/wx_api/send_txt", json=data, rlt_type="json")
+            rsp = lib.api.post("{config.API_DB_SERVER_HOST}/wx_api/send_msg/text", json=data, rlt_type="json")
         return 1
 
 
