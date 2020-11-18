@@ -14,7 +14,7 @@ async def fetch(session, url):
 async def read_main():
     async with aiohttp.ClientSession() as session:
         a = await fetch(session, 'http://127.0.0.1:8000/favicon.ico')
-    return {"msg": "WindWhisper v0.01"}
+    return {"msg": "WindWhisper v0.10"}
 
 @app.get("/favicon.ico")
 async def favicon_ico():
