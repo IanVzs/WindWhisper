@@ -6,3 +6,4 @@ logging.config.fileConfig('logging.ini')
 # create wea logger
 weatherLog = logging.getLogger('weatherLog')
 debugLog = logging.getLogger('debugLog')
+scheLog = logging.getLogger('scheLog')
