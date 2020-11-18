@@ -13,6 +13,7 @@ class User(Base):
     is_active = Column(Boolean, default=True)
 
     wx_infos = relationship("WXInfo", back_populates="owner")
+    sub_infos = relationship("SubInfo", back_populates="owner")
 
 
 class WXInfo(Base):
@@ -23,6 +24,21 @@ class WXInfo(Base):
     city_id = Column(Integer, index=True)
 
     owner = relationship("User", back_populates="wx_infos")
+    
+    @classmethod
+    def update(cls, db: Session, user_id: int, new_data: dict):
+        db.query(cls).filter_by(id=user_id).update(new_data)
+        db.commit()
+        return db.query(cls).filter_by(id=user_id).first()
+
+class SubInfo(Base): 
+    __tablename__ = "sub_infos"
+
+    id = Column(Integer, ForeignKey("users.id"), primary_key=True, index=True)
+    openid = Column(String(12), index=True)
+    city_id = Column(Integer, index=True)
+
+    owner = relationship("User", back_populates="sub_infos")
     
     @classmethod
     def update(cls, db: Session, user_id: int, new_data: dict):
