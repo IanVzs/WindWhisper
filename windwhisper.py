@@ -13,7 +13,7 @@ async def fetch(session, url):
 @app.get("/")
 async def read_main():
     async with aiohttp.ClientSession() as session:
-        a = await fetch(session, 'http://127.0.0.1:8000/favicon.ico')
+        a = await fetch(session, 'http://127.0.0.1:5481/favicon.ico')
     return {"msg": "WindWhisper v0.10"}
 
 @app.get("/favicon.ico")
@@ -22,4 +22,4 @@ async def favicon_ico():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=5481)
