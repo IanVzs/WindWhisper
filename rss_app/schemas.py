@@ -37,6 +37,9 @@ class RssCreate(RssBase):
         min_anystr_length = 1
         max_anystr_length = 16
 
+class RssItem(RssBase):
+    class Config:
+        orm_mode = True
 
 class Rss(RssBase):
     srtdesc: str

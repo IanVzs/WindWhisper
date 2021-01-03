@@ -31,7 +31,7 @@ def create_rss(srtdesc: str = Query(..., min_length=3), rss: schemas.RssBase=Non
     return crud.create_rss(db=db, rss=rsscreate)
 
 
-@router.get("/rss/", response_model=List[schemas.Rss])
+@router.get("/rss/", response_model=List[schemas.RssItem])
 def read_rss(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     rss = crud.get_rsses(db, skip=skip, limit=limit)
     return rss
