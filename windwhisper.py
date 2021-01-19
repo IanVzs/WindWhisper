@@ -20,6 +20,10 @@ async def read_main():
 async def favicon_ico():
     return "hi"
 
+@app.get("/[object Module]")
+async def ob5():
+    return "hi"
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=5481)
