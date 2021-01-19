@@ -9,6 +9,9 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
+class Status(BaseModel):
+    status: int=0
+    
 class ArticlesBase(BaseModel):
     dtpub: datetime
     title: str
