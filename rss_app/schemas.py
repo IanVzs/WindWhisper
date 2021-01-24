@@ -14,6 +14,7 @@ class Status(BaseModel):
     
 class ArticlesBase(BaseModel):
     dtpub: datetime
+    srtdesc: str
     title: str
     content: str
     openum: int

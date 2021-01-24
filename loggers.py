@@ -4,6 +4,7 @@ import logging.config
 logging.config.fileConfig('logging.ini')
 
 # create wea logger
-weatherLog = logging.getLogger('weatherLog')
+backtaskLog = logging.getLogger('backtaskLog')
 debugLog = logging.getLogger('debugLog')
 scheLog = logging.getLogger('scheLog')
+svrLog = logging.getLogger('svrLog')
